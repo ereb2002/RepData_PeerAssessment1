@@ -1,0 +1,46 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+
+## Loading and preprocessing the data
+
+```{r carga}
+library(ggplot2)
+setwd("/home/ron/Documentos/DataScience/RepData_PeerAssessment1/")
+datos <- data.frame(read.csv("activity.csv"))
+```
+
+## What is mean total number of steps taken per day?
+
+```{r media_total}
+datos_filtro <- subset(datos, steps != "NA")
+media_total<-mean(datos_filtro$steps)
+media_total
+```
+
+## What is the average daily activity pattern?
+
+```{r media_dia}
+media_dia<-setNames(aggregate(datos$steps, list(datos$date), FUN=mean),c("Dia", "Media"))
+media_dia
+```
+
+## Imputing missing values
+
+```{r missing}
+media_dia$Media <- ifelse(is.na(media_dia$Media), 0, media_dia$Media)
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+```{r laboral}
+media_dia$num_dia<-as.numeric(format(as.Date(media_dia$Dia), format = '%u'))
+media_dia$laboral <- floor(media_dia$num_dia / 6)
+media_dia$grupo <- ifelse(media_dia$laboral == 0, "Weekday", "Weekend")
+ggplot(media_dia, aes(x=Dia, y=Media, shape=grupo, color=grupo)) + geom_point()+
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE))
+medias <- setNames(aggregate(media_dia$Media, list(media_dia$grupo), FUN=mean), c("Type", "Mean"))
+medias
+```
