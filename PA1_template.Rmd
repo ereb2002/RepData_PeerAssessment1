@@ -15,17 +15,18 @@ datos <- data.frame(read.csv("activity.csv"))
 
 ## What is mean total number of steps taken per day?
 
-```{r media_total}
+```{r media_total_1}
 datos_filtro <- subset(datos, steps != "NA")
 media_total<-mean(datos_filtro$steps)
-media_total
 ```
+
+The total media is <b>`r media_total`</b>
 
 ## What is the average daily activity pattern?
 
 ```{r media_dia}
 media_dia<-setNames(aggregate(datos$steps, list(datos$date), FUN=mean),c("Dia", "Media"))
-media_dia
+ggplot(media_dia, aes(x=Dia, y=Media)) + geom_col()+scale_x_discrete(guide = guide_axis(check.overlap = TRUE))
 ```
 
 ## Imputing missing values
@@ -39,7 +40,7 @@ media_dia$Media <- ifelse(is.na(media_dia$Media), 0, media_dia$Media)
 media_dia$num_dia<-as.numeric(format(as.Date(media_dia$Dia), format = '%u'))
 media_dia$laboral <- floor(media_dia$num_dia / 6)
 media_dia$grupo <- ifelse(media_dia$laboral == 0, "Weekday", "Weekend")
-ggplot(media_dia, aes(x=Dia, y=Media, shape=grupo, color=grupo)) + geom_point()+
+ggplot(media_dia, aes(x=Dia, y=Media, shape=grupo, color=grupo, fill=grupo)) + geom_col()+
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE))
 medias <- setNames(aggregate(media_dia$Media, list(media_dia$grupo), FUN=mean), c("Type", "Mean"))
 medias
